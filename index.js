@@ -1,9 +1,7 @@
-
+const { createStore, applyMiddleware } = require("redux");
+const { fetchTodos } = require("./middlewareFunction");
 
 // 1. initial state
-
-const { createStore, applyMiddleware } = require("redux");
-
 const initialState = {
     todos: []
 }
@@ -27,19 +25,27 @@ const todoReducer = (state = initialState, action) => {
 
 //6. middlewares
 
-const fetchTodoMiddleware = (store) => (next) =>async (action) => {
-    if(action.type === 'todos/todoFetched'){
+// const fetchTodoMiddleware = (store) => (next) =>async (action) => {
+//     if(action.type === 'todos/todoFetched'){
 
-        const res = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
-        const todos = await res.json();
+//         const res = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+//         const todos = await res.json();
 
-        store.dispatch({
-            type: 'todos/todoAdded',
-            payload: todos
-        })
+//         store.dispatch({
+//             type: 'todos/todoAdded',
+//             payload: todos
+//         })
 
-        console.log('After dispatch', store.getState().todos.length);
-        return;
+//         console.log('After dispatch', store.getState().todos.length);
+//         return;
+//     }
+
+//     return next(action)
+// }
+const fetchTodoMiddleware = (store) => (next) => (action) => {
+    if(typeof action === 'function'){
+
+        return action(store.dispatch, store.getState)
     }
 
     return next(action)
@@ -58,8 +64,8 @@ store.subscribe(() => {
 
 // 5. dispatch the action  // in react it used by react hooks useDispatch
 
-store.dispatch({
-    type: 'todos/todoFetched'
-});
-
+// store.dispatch({
+//     type: 'todos/todoFetched'
+// });
+store.dispatch(fetchTodos)
 
